@@ -1,0 +1,33 @@
+{
+  "adafruit_io": {
+    "username": "your_adafruit_username",
+    "api_key": "your_adafruit_api_key_here",
+    "feeds": {
+      "temperature": "username/feeds/temperature",
+      "humidity": "username/feeds/humidity",
+      "light_level": "username/feeds/light-level",
+      "motion_state": "username/feeds/motion-state",
+      "camera_timestamp": "username/feeds/camera-last-image-timestamp",
+      "light_control": "username/feeds/light-toggle",
+      "fan_control": "username/feeds/fan-toggle",
+      "system_mode": "username/feeds/system-mode"
+    }
+  },
+  "pins": {
+    "dht_sensor": 22,
+    "pir_sensor": 27,
+    "ldr_sensor": null,
+    "led_light": 17,
+    "buzzer": 24,
+    "fan_relay": 18
+  },
+  "logging": {
+    "data_path": "data",
+    "image_path": "images",
+    "log_file": "logs/app.log"
+  },
+  "settings": {
+    "temp_unit": "C",
+    "motion_debounce": 30
+  }
+}

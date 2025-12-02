@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block title %}About - IoT Home Security{% endblock %}
+
+{% block content %}
+<div class="about-container">
+    <div class="page-header">
+        <h1>ℹ️ About This Project</h1>
+        <p>IoT Home Automation and Security System - Fall 2025</p>
+    </div>
+
+    <!-- Project Overview -->
+    <div class="content-section">
+        <h2>📝 Project Overview</h2>
+        <p>
+            This IoT Home Security System is a comprehensive solution for home automation and security monitoring.
+            Built on a Raspberry Pi 4 platform, it integrates multiple sensors and actuators to provide real-time
+            environmental monitoring, motion detection, and remote device control capabilities.
+        </p>
+    </div>
+
+    <!-- Team Members -->
+    <div class="content-section">
+        <h2>👥 Team Members</h2>
+        <div class="team-grid">
+            <div class="team-member">
+                <div class="member-icon">👨‍💻</div>
+                <h3>Jeremy Roos</h3>
+                <p>Student ID: 2332918</p>
+                <p class="member-role">Hardware Integration & Backend Development</p>
+            </div>
+            <div class="team-member">
+                <div class="member-icon">👨‍💻</div>
+                <h3>Jeremy Misola</h3>
+                <p>Student ID: 2330210</p>
+                <p class="member-role">Sensor Systems & Data Logging</p>
+            </div>
+            <div class="team-member">
+                <div class="member-icon">👨‍💻</div>
+                <h3>Andy Le</h3>
+                <p>Student ID: 2330800</p>
+                <p class="member-role">IoT Communication & Cloud Integration</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Features -->
+    <div class="content-section">
+        <h2>✨ Key Features</h2>
+        <div class="features-grid">
+            <div class="feature-item">
+                <div class="feature-icon">🌡️</div>
+                <h4>Environmental Monitoring</h4>
+                <p>Real-time temperature and humidity tracking with historical data visualization</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">👁️</div>
+                <h4>Motion Detection</h4>
+                <p>PIR sensor-based motion detection with automatic camera capture and alerts</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">📱</div>
+                <h4>Remote Control</h4>
+                <p>Control lights, fans, and system modes from anywhere via web dashboard</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">☁️</div>
+                <h4>Cloud Integration</h4>
+                <p>Data syncing with Adafruit IO for real-time monitoring and control</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">📊</div>
+                <h4>Data Logging</h4>
+                <p>Comprehensive CSV logging with daily cloud backup capabilities</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🔒</div>
+                <h4>Security Modes</h4>
+                <p>Three operation modes: Home, Away, and Night for different scenarios</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Architecture -->
+    <div class="content-section">
+        <h2>🏗️ System Architecture</h2>
+        <div class="architecture-diagram">
+            <pre class="diagram-text">
+┌─────────────────────────────────────────────┐
+│           Raspberry Pi 4 (Core)             │
+│                                             │
+│  ┌──────────────┐      ┌──────────────┐   │
+│  │  Python App  │◄────►│ Adafruit IO  │   │
+│  │   (main.py)  │ MQTT │    Cloud     │   │
+│  └──────┬───────┘      └──────────────┘   │
+│         │                                   │
+│    ┌────┴────┐                             │
+│    │  GPIO   │                             │
+│    └────┬────┘                             │
+└─────────┼──────────────────────────────────┘
+          │
+    ──────┴────────────────────────────
+    │        │        │        │      │
+┌───▼───┐┌──▼───┐┌───▼───┐┌──▼───┐┌─▼──┐
+│  PIR  ││DHT11 ││ LED   ││ Fan  ││Cam │
+│Motion ││Temp/ ││Light  ││Relay ││era │
+│Sensor ││Humid ││       ││      ││    │
+└───────┘└──────┘└───────┘└──────┘└────┘
+            </pre>
+        </div>
+    </div>
+
+    <!-- Bill of Materials -->
+    <div class="content-section">
+        <h2>🔧 Hardware Components</h2>
+        <div class="bom-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Model</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Microcontroller</td>
+                        <td>Raspberry Pi 4 (4GB)</td>
+                        <td>Main processing unit</td>
+                    </tr>
+                    <tr>
+                        <td>Motion Sensor</td>
+                        <td>HC-SR501 PIR</td>
+                        <td>Detect movement</td>
+                    </tr>
+                    <tr>
+                        <td>Temp/Humidity</td>
+                        <td>DHT11</td>
+                        <td>Environmental monitoring</td>
+                    </tr>
+                    <tr>
+                        <td>Camera</td>
+                        <td>Pi Camera Module v2</td>
+                        <td>Image capture for security</td>
+                    </tr>
+                    <tr>
+                        <td>LED</td>
+                        <td>5mm LED + 220Ω resistor</td>
+                        <td>Light control</td>
+                    </tr>
+                    <tr>
+                        <td>Relay</td>
+                        <td>5V Relay Module</td>
+                        <td>Fan control</td>
+                    </tr>
+                    <tr>
+                        <td>Buzzer</td>
+                        <td>Active Buzzer 5V</td>
+                        <td>Security alerts</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Technologies Used -->
+    <div class="content-section">
+        <h2>💻 Technologies Used</h2>
+        <div class="tech-grid">
+            <div class="tech-item">
+                <h4>Backend</h4>
+                <ul>
+                    <li>Python 3</li>
+                    <li>Flask Web Framework</li>
+                    <li>paho-mqtt (MQTT Client)</li>
+                    <li>gpiozero (GPIO Control)</li>
+                </ul>
+            </div>
+            <div class="tech-item">
+                <h4>Frontend</h4>
+                <ul>
+                    <li>HTML5 / CSS3</li>
+                    <li>JavaScript (ES6+)</li>
+                    <li>Chart.js (Data Visualization)</li>
+                    <li>Responsive Design</li>
+                </ul>
+            </div>
+            <div class="tech-item">
+                <h4>IoT Platform</h4>
+                <ul>
+                    <li>Adafruit IO</li>
+                    <li>MQTT Protocol</li>
+                    <li>RESTful APIs</li>
+                    <li>Real-time Data Streaming</li>
+                </ul>
+            </div>
+            <div class="tech-item">
+                <h4>Hardware</h4>
+                <ul>
+                    <li>Raspberry Pi OS</li>
+                    <li>picamera2 Library</li>
+                    <li>Adafruit CircuitPython</li>
+                    <li>GPIO Pin Control</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Information -->
+    <div class="content-section">
+        <h2>🎓 Course Information</h2>
+        <div class="course-info">
+            <p><strong>Course:</strong> 420-N55: IoT: Design and Prototyping of Connected Devices</p>
+            <p><strong>Professor:</strong> Prof. Haikel Hichri</p>
+            <p><strong>Institution:</strong> Champlain College Saint-Lambert</p>
+            <p><strong>Term:</strong> Fall 2025</p>
+            <p><strong>Project:</strong> Milestone 3 - Complete System Implementation</p>
+        </div>
+    </div>
+
+    <!-- Links -->
+    <div class="content-section">
+        <h2>🔗 Project Links</h2>
+        <div class="links-container">
+            <a href="https://github.com/yourusername/iot-home-security" class="link-btn" target="_blank">
+                <span>📁</span> GitHub Repository
+            </a>
+            <a href="https://io.adafruit.com" class="link-btn" target="_blank">
+                <span>☁️</span> Adafruit IO Dashboard
+            </a>
+            <a href="https://www.youtube.com/shorts/agyrXt_8QSU" class="link-btn" target="_blank">
+                <span>📹</span> Demo Video
+            </a>
+        </div>
+    </div>
+
+    <!-- Acknowledgments -->
+    <div class="content-section">
+        <h2>🙏 Acknowledgments</h2>
+        <p>
+            We would like to thank Prof. Haikel Hichri for his guidance throughout this project,
+            the Raspberry Pi Foundation for excellent documentation, and Adafruit for providing
+            the cloud platform and MQTT broker that made this project possible.
+        </p>
+    </div>
+</div>
+{% endblock %}

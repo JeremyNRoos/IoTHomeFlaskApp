@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}Environmental Data - IoT Home Security{% endblock %}
+
+{% block content %}
+<div class="environmental-container">
+    <div class="page-header">
+        <h1>📈 Environmental Data</h1>
+        <p>View historical sensor data and trends</p>
+    </div>
+
+    <!-- Data Selection Form -->
+    <div class="data-controls">
+        <div class="control-group">
+            <label for="sensorSelect">Select Sensor:</label>
+            <select id="sensorSelect" class="form-select">
+                <option value="temperature">Temperature (°C)</option>
+                <option value="humidity">Humidity (%)</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="dateSelect">Select Date:</label>
+            <input type="date" id="dateSelect" class="form-input" max="">
+        </div>
+
+        <button onclick="loadHistoricalData()" class="btn btn-primary">
+            <span>📊</span> Load Data
+        </button>
+    </div>
+
+    <!-- Chart Display -->
+    <div class="chart-container">
+        <canvas id="historicalChart"></canvas>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h4>Average</h4>
+            <div class="stat-value" id="avgValue">--</div>
+        </div>
+        <div class="stat-card">
+            <h4>Minimum</h4>
+            <div class="stat-value" id="minValue">--</div>
+        </div>
+        <div class="stat-card">
+            <h4>Maximum</h4>
+            <div class="stat-value" id="maxValue">--</div>
+        </div>
+        <div class="stat-card">
+            <h4>Data Points</h4>
+            <div class="stat-value" id="dataCount">--</div>
+        </div>
+    </div>
+
+    <!-- Live Current Readings -->
+    <div class="current-readings">
+        <h2>Current Readings</h2>
+        <div class="readings-grid">
+            <div class="reading-card">
+                <span class="reading-icon">🌡️</span>
+                <div class="reading-info">
+                    <span class="reading-label">Temperature</span>
+                    <span class="reading-value" id="currentTemp">--°C</span>
+                </div>
+            </div>
+            <div class="reading-card">
+                <span class="reading-icon">💧</span>
+                <div class="reading-info">
+                    <span class="reading-label">Humidity</span>
+                    <span class="reading-value" id="currentHumidity">--%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    let historicalChart = null;
+
+    // Set max date to today
+    document.getElementById('dateSelect').max = new Date().toISOString().split('T')[0];
+    document.getElementById('dateSelect').value = new Date().toISOString().split('T')[0];
+
+    function loadHistoricalData() {
+        const sensor = document.getElementById('sensorSelect').value;
+        const date = document.getElementById('dateSelect').value;
+
+        if (!date) {
+            alert('Please select a date');
+            return;
+        }
+
+        // Show loading state
+        document.getElementById('avgValue').textContent = 'Loading...';
+        document.getElementById('minValue').textContent = 'Loading...';
+        document.getElementById('maxValue').textContent = 'Loading...';
+        document.getElementById('dataCount').textContent = 'Loading...';
+
+        fetch(`/api/historical-data?sensor=${sensor}&date=${date}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.timestamps.length === 0) {
+                    alert('No data available for the selected date');
+                    return;
+                }
+
+                // Update chart
+                updateChart(data, sensor);
+
+                // Calculate and display statistics
+                calculateStatistics(data.values, sensor);
+            })
+            .catch(error => {
+                console.error('Error loading historical data:', error);
+                alert('Error loading data. Please try again.');
+            });
+    }
+
+    function updateChart(data, sensor) {
+        const ctx = document.getElementById('historicalChart').getContext('2d');
+
+        // Format timestamps for display
+        const labels = data.timestamps.map(ts => {
+            const date = new Date(ts);
+            return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        });
+
+        const sensorConfig = {
+            temperature: {
+                label: 'Temperature (°C)',
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(255, 99, 132, 0.1)'
+            },
+            humidity: {
+                label: 'Humidity (%)',
+                borderColor: 'rgb(54, 162, 235)',
+                backgroundColor: 'rgba(54, 162, 235, 0.1)'
+            }
+        };
+
+        const config = sensorConfig[sensor];
+
+        if (historicalChart) {
+            historicalChart.destroy();
+        }
+
+        historicalChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: config.label,
+                    data: data.values,
+                    borderColor: config.borderColor,
+                    backgroundColor: config.backgroundColor,
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: `${config.label} Over Time`,
+                        font: {
+                            size: 16
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function calculateStatistics(values, sensor) {
+        if (values.length === 0) return;
+
+        const avg = values.reduce((a, b) => a + b, 0) / values.length;
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+
+        const unit = sensor === 'temperature' ? '°C' : '%';
+
+        document.getElementById('avgValue').textContent = avg.toFixed(2) + unit;
+        document.getElementById('minValue').textContent = min.toFixed(2) + unit;
+        document.getElementById('maxValue').textContent = max.toFixed(2) + unit;
+        document.getElementById('dataCount').textContent = values.length;
+    }
+
+    // Update current readings
+    function updateCurrentReadings() {
+        fetch('/api/live-data')
+            .then(response => response.json())
+            .then(data => {
+                if (data.temperature) {
+                    document.getElementById('currentTemp').textContent =
+                        parseFloat(data.temperature).toFixed(1) + '°C';
+                }
+                if (data.humidity) {
+                    document.getElementById('currentHumidity').textContent =
+                        parseFloat(data.humidity).toFixed(1) + '%';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching current readings:', error);
+            });
+    }
+
+    // Initial load
+    updateCurrentReadings();
+
+    // Update every 10 seconds
+    setInterval(updateCurrentReadings, 10000);
+
+    // Auto-load today's temperature data on page load
+    window.addEventListener('load', () => {
+        loadHistoricalData();
+    });
+</script>
+{% endblock %}

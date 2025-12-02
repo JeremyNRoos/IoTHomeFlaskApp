@@ -1,0 +1,18 @@
+{
+  "adafruit_io": {
+    "username": "your_adafruit_username",
+    "api_key": "your_adafruit_api_key_here",
+    "feeds": {
+      "temperature": "username/feeds/temperature",
+      "humidity": "username/feeds/humidity",
+      "motion": "username/feeds/motion-state",
+      "light": "username/feeds/light-level",
+      "fan": "username/feeds/fan-toggle",
+      "mode": "username/feeds/system-mode",
+      "camera": "username/feeds/camera-last-image-timestamp"
+    }
+  },
+  "database": {
+    "connection_string": "your_database_connection_string_here"
+  }
+}
