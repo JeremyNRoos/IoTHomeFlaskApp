@@ -43,20 +43,13 @@ git push -u origin main
    - **Region**: Choose closest to you
 
 ### Step 3: Add Environment Variables in Render
-In the Render dashboard, go to **Environment** and add these variables:
+In the Render dashboard, go to **Environment** and add these variables (do not store secrets in files):
 
 ```
 AIO_USERNAME=Jurassicjey
 AIO_KEY=REDACTED_AIO_KEY
-DATABASE_URL=REDACTED_DATABASE_URL
+DATABASE_URL=postgresql://user:password@host/database
 FLASK_SECRET_KEY=your-random-secret-key-here
-FEED_TEMPERATURE=temperature
-FEED_HUMIDITY=humidity
-FEED_MOTION=motion-state
-FEED_LIGHT=light-level
-FEED_FAN=fan-toggle
-FEED_MODE=system-mode
-FEED_CAMERA=camera-last-image-timestamp
 ```
 
 **Important**: Generate a strong random secret key for `FLASK_SECRET_KEY` in production!
@@ -153,9 +146,8 @@ The `RSPI_*` variables are optional. Only set them if you need to SSH into your 
    - Render will use this instead of Flask's development server
 
 2. **Generate strong secret key**:
-   ```python
-   import secrets
-   print(secrets.token_hex(32))
+   ```powershell
+   python -c "import secrets; print(secrets.token_hex(32))"
    ```
    Use this value for `FLASK_SECRET_KEY` in Render
 
@@ -167,4 +159,3 @@ The `RSPI_*` variables are optional. Only set them if you need to SSH into your 
    - Check logs in Render dashboard
    - Set up health checks
    - Configure custom domain (optional)
-
