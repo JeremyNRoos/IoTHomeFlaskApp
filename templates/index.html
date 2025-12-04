@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - IoT Home Security{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="page-header">
+        <h1>System Overview</h1>
+        <div class="system-mode-indicator" id="systemMode">
+            <span class="mode-label">Current Mode:</span>
+            <span class="mode-value" id="modeValue">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Live Sensor Cards -->
+    <div class="sensor-grid">
+        <div class="sensor-card temperature-card">
+            <div class="sensor-icon">🌡️</div>
+            <div class="sensor-content">
+                <h3>Temperature</h3>
+                <div class="sensor-value" id="temperature">--</div>
+                <div class="sensor-unit">°C</div>
+                <div class="sensor-timestamp" id="temp-timestamp">Updated: --</div>
+            </div>
+        </div>
+
+        <div class="sensor-card humidity-card">
+            <div class="sensor-icon">💧</div>
+            <div class="sensor-content">
+                <h3>Humidity</h3>
+                <div class="sensor-value" id="humidity">--</div>
+                <div class="sensor-unit">%</div>
+                <div class="sensor-timestamp" id="humidity-timestamp">Updated: --</div>
+            </div>
+        </div>
+
+        <div class="sensor-card motion-card" id="motionCard">
+            <div class="sensor-icon">👁️</div>
+            <div class="sensor-content">
+                <h3>Motion Status</h3>
+                <div class="sensor-value" id="motion">--</div>
+                <div class="sensor-unit"></div>
+                <div class="sensor-timestamp" id="motion-timestamp">Updated: --</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Device Status Section -->
+    <div class="status-section">
+        <h2>🔌 Device Status</h2>
+        <div class="device-status-grid">
+            <div class="status-item">
+                <div class="status-icon" id="lightIcon">💡</div>
+                <div class="status-info">
+                    <h4>Living Room Light</h4>
+                    <span class="status-badge" id="lightStatus">OFF</span>
+                </div>
+            </div>
+
+            <div class="status-item">
+                <div class="status-icon" id="fanIcon">🌀</div>
+                <div class="status-info">
+                    <h4>Bedroom Fan</h4>
+                    <span class="status-badge" id="fanStatus">OFF</span>
+                </div>
+            </div>
+
+            <div class="status-item">
+                <div class="status-icon">📹</div>
+                <div class="status-info">
+                    <h4>Security Camera</h4>
+                    <span class="status-badge active">ACTIVE</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions-section">
+        <h2>⚡ Quick Actions</h2>
+        <div class="action-buttons">
+            <a href="{{ url_for('control') }}" class="action-btn primary">
+                <span class="btn-icon">🎛️</span>
+                Control Devices
+            </a>
+            <a href="{{ url_for('environmental') }}" class="action-btn secondary">
+                <span class="btn-icon">📈</span>
+                View History
+            </a>
+            <a href="{{ url_for('security') }}" class="action-btn danger">
+                <span class="btn-icon">🔒</span>
+                Manage Security
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Update live data every 5 seconds
+    function updateLiveData() {
+        fetch('/api/live-data')
+            .then(response => response.json())
+            .then(data => {
+                // Update temperature
+                if (data.temperature) {
+                    document.getElementById('temperature').textContent = parseFloat(data.temperature).toFixed(1);
+                }
+
+                // Update humidity
+                if (data.humidity) {
+                    document.getElementById('humidity').textContent = parseFloat(data.humidity).toFixed(1);
+                }
+
+                // Update motion status
+                const motionCard = document.getElementById('motionCard');
+                if (data.motion === '1') {
+                    document.getElementById('motion').textContent = 'DETECTED';
+                    motionCard.classList.add('motion-active');
+                } else {
+                    document.getElementById('motion').textContent = 'No Motion';
+                    motionCard.classList.remove('motion-active');
+                }
+
+                // Update device statuses
+                updateDeviceStatus('light', data.light_state);
+                updateDeviceStatus('fan', data.fan_state);
+
+                // Update system mode
+                if (data.system_mode) {
+                    document.getElementById('modeValue').textContent = data.system_mode;
+                    updateModeColor(data.system_mode);
+                }
+
+                // Update timestamp
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString();
+                document.querySelectorAll('.sensor-timestamp').forEach(el => {
+                    el.textContent = `Updated: ${timeStr}`;
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching live data:', error);
+            });
+    }
+
+    function updateDeviceStatus(device, state) {
+        const isOn = state === '1';
+        const statusEl = document.getElementById(`${device}Status`);
+        const iconEl = document.getElementById(`${device}Icon`);
+
+        if (isOn) {
+            statusEl.textContent = 'ON';
+            statusEl.classList.add('active');
+            iconEl.classList.add('device-on');
+        } else {
+            statusEl.textContent = 'OFF';
+            statusEl.classList.remove('active');
+            iconEl.classList.remove('device-on');
+        }
+    }
+
+    function updateModeColor(mode) {
+        const modeValue = document.getElementById('modeValue');
+        modeValue.className = 'mode-value';
+
+        if (mode === 'Away') {
+            modeValue.classList.add('mode-away');
+        } else if (mode === 'Night') {
+            modeValue.classList.add('mode-night');
+        } else {
+            modeValue.classList.add('mode-home');
+        }
+    }
+
+    // Initial load
+    updateLiveData();
+
+    // Update every 5 seconds
+    setInterval(updateLiveData, 5000);
+</script>
+{% endblock %}

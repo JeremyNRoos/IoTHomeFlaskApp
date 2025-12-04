@@ -1,0 +1,33 @@
+{
+  "adafruit_io": {
+    "username": "Jurassicjey",
+    "api_key": "REDACTED_AIO_KEY",
+    "feeds": {
+      "temperature": "Jurassicjey/feeds/temperature",
+      "humidity": "Jurassicjey/feeds/humidity",
+      "light_level": "Jurassicjey/feeds/light-level",
+      "motion_state": "Jurassicjey/feeds/motion-state",
+      "camera_timestamp": "Jurassicjey/feeds/camera-last-image-timestamp",
+      "light_control": "Jurassicjey/feeds/light-toggle",
+      "fan_control": "Jurassicjey/feeds/fan-toggle",
+      "system_mode": "Jurassicjey/feeds/system-mode"
+    }
+  },
+  "pins": {
+    "dht_sensor": 22,
+    "pir_sensor": 27,
+    "ldr_sensor": null,
+    "led_light": 17,
+    "buzzer": 24,
+    "fan_relay": 18
+  },
+  "logging": {
+    "data_path": "data",
+    "image_path": "images",
+    "log_file": "logs/app.log"
+  },
+  "settings": {
+    "temp_unit": "C",
+    "motion_debounce": 30
+  }
+}

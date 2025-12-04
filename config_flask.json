@@ -1,0 +1,18 @@
+{
+  "adafruit_io": {
+    "username": "Jurassicjey",
+    "api_key": "REDACTED_AIO_KEY",
+    "feeds": {
+      "temperature": "Jurassicjey/feeds/temperature",
+      "humidity": "Jurassicjey/feeds/humidity",
+      "motion": "Jurassicjey/feeds/motion-state",
+      "light": "Jurassicjey/feeds/light-level",
+      "fan": "Jurassicjey/feeds/fan-toggle",
+      "mode": "Jurassicjey/feeds/system-mode",
+      "camera": "Jurassicjey/feeds/camera-last-image-timestamp"
+    }
+  },
+  "database": {
+    "connection_string": "REDACTED_DATABASE_URL"
+  }
+}

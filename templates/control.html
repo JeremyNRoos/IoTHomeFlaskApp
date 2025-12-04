@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+
+{% block title %}Device Control - IoT Home Security{% endblock %}
+
+{% block content %}
+<div class="control-container">
+    <div class="page-header">
+        <h1>🎛️ Device Control</h1>
+        <p>Control your home devices remotely</p>
+    </div>
+
+    <!-- Device Control Grid -->
+    <div class="device-grid">
+        <!-- Living Room Light -->
+        <div class="device-card" id="lightCard">
+            <div class="device-header">
+                <div class="device-icon-large">💡</div>
+                <h3>Living Room Light</h3>
+            </div>
+            <div class="device-body">
+                <div class="device-status">
+                    <span class="status-label">Status:</span>
+                    <span class="status-badge" id="lightStatusBadge">OFF</span>
+                </div>
+                <div class="device-controls">
+                    <button class="control-btn btn-on" onclick="controlDevice('light', '1')">
+                        <span>🔆</span> Turn ON
+                    </button>
+                    <button class="control-btn btn-off" onclick="controlDevice('light', '0')">
+                        <span>🔅</span> Turn OFF
+                    </button>
+                </div>
+            </div>
+            <div class="device-footer">
+                <small>Last updated: <span id="lightLastUpdate">--</span></small>
+            </div>
+        </div>
+
+        <!-- Bedroom Fan -->
+        <div class="device-card" id="fanCard">
+            <div class="device-header">
+                <div class="device-icon-large">🌀</div>
+                <h3>Bedroom Fan</h3>
+            </div>
+            <div class="device-body">
+                <div class="device-status">
+                    <span class="status-label">Status:</span>
+                    <span class="status-badge" id="fanStatusBadge">OFF</span>
+                </div>
+                <div class="device-controls">
+                    <button class="control-btn btn-on" onclick="controlDevice('fan', '1')">
+                        <span>💨</span> Turn ON
+                    </button>
+                    <button class="control-btn btn-off" onclick="controlDevice('fan', '0')">
+                        <span>⏸️</span> Turn OFF
+                    </button>
+                </div>
+            </div>
+            <div class="device-footer">
+                <small>Last updated: <span id="fanLastUpdate">--</span></small>
+            </div>
+        </div>
+
+        <!-- Buzzer/Alarm -->
+        <div class="device-card" id="buzzerCard">
+            <div class="device-header">
+                <div class="device-icon-large">🔔</div>
+                <h3>Security Buzzer</h3>
+            </div>
+            <div class="device-body">
+                <div class="device-status">
+                    <span class="status-label">Status:</span>
+                    <span class="status-badge" id="buzzerStatusBadge">AUTO</span>
+                </div>
+                <div class="device-info">
+                    <p>Automatically activated when motion is detected in Away mode.</p>
+                </div>
+            </div>
+            <div class="device-footer">
+                <small>Controlled by security system</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Control All Section -->
+    <div class="control-all-section">
+        <h2>⚡ Quick Controls</h2>
+        <div class="quick-control-buttons">
+            <button class="quick-btn all-on" onclick="controlAll('on')">
+                <span>🔆</span> All Lights ON
+            </button>
+            <button class="quick-btn all-off" onclick="controlAll('off')">
+                <span>🔅</span> All Devices OFF
+            </button>
+        </div>
+    </div>
+
+    <!-- System Information -->
+    <div class="system-info">
+        <h2>📊 System Information</h2>
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">System Mode:</span>
+                <span class="info-value" id="infoMode">--</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Active Devices:</span>
+                <span class="info-value" id="activeDevices">0</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Last Activity:</span>
+                <span class="info-value" id="lastActivity">--</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Connection:</span>
+                <span class="info-value" id="connectionStatus">
+                    <span class="status-dot online"></span> Online
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Log -->
+    <div class="control-log">
+        <h3>Recent Control Actions</h3>
+        <div id="controlLog" class="log-entries">
+            <div class="log-entry">Waiting for activity...</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    let controlHistory = [];
+
+    function controlDevice(device, value) {
+        const deviceNames = {
+            'light': 'Living Room Light',
+            'fan': 'Bedroom Fan'
+        };
+
+        const actionText = value === '1' ? 'ON' : 'OFF';
+
+        // Show loading state
+        const badge = document.getElementById(`${device}StatusBadge`);
+        const originalText = badge.textContent;
+        badge.textContent = 'UPDATING...';
+        badge.classList.add('updating');
+
+        fetch(`/api/control/${device}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ value: value })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateDeviceUI(device, value);
+                addToLog(`${deviceNames[device]} turned ${actionText}`);
+            } else {
+                alert(`Failed to control ${deviceNames[device]}. Please try again.`);
+                badge.textContent = originalText;
+            }
+            badge.classList.remove('updating');
+        })
+        .catch(error => {
+            console.error(`Error controlling ${device}:`, error);
+            alert('Error controlling device. Please check your connection.');
+            badge.textContent = originalText;
+            badge.classList.remove('updating');
+        });
+    }
+
+    function updateDeviceUI(device, state) {
+        const isOn = state === '1';
+        const badge = document.getElementById(`${device}StatusBadge`);
+        const card = document.getElementById(`${device}Card`);
+        const updateTime = document.getElementById(`${device}LastUpdate`);
+
+        badge.textContent = isOn ? 'ON' : 'OFF';
+        badge.classList.toggle('active', isOn);
+        card.classList.toggle('device-active', isOn);
+
+        const now = new Date();
+        updateTime.textContent = now.toLocaleTimeString();
+    }
+
+    function controlAll(action) {
+        const value = action === 'on' ? '1' : '0';
+        const message = action === 'on' ? 'Turn all lights ON?' : 'Turn all devices OFF?';
+
+        if (!confirm(message)) {
+            return;
+        }
+
+        // Control light and fan
+        controlDevice('light', value);
+        setTimeout(() => controlDevice('fan', value), 500);
+
+        addToLog(`Bulk action: All devices turned ${action.toUpperCase()}`);
+    }
+
+    function addToLog(message) {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString();
+
+        controlHistory.unshift({
+            time: timeStr,
+            message: message
+        });
+
+        // Keep only last 10 entries
+        if (controlHistory.length > 10) {
+            controlHistory = controlHistory.slice(0, 10);
+        }
+
+        updateLogDisplay();
+    }
+
+    function updateLogDisplay() {
+        const logEl = document.getElementById('controlLog');
+
+        if (controlHistory.length === 0) {
+            logEl.innerHTML = '<div class="log-entry">No recent activity</div>';
+            return;
+        }
+
+        let html = '';
+        controlHistory.forEach(entry => {
+            html += `
+                <div class="log-entry">
+                    <span class="log-time">${entry.time}</span>
+                    <span class="log-message">${entry.message}</span>
+                </div>
+            `;
+        });
+
+        logEl.innerHTML = html;
+    }
+
+    function updateSystemInfo() {
+        fetch('/api/system-status')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('infoMode').textContent = data.mode || 'Unknown';
+
+                // Count active devices
+                let activeCount = 0;
+                if (data.devices.light) activeCount++;
+                if (data.devices.fan) activeCount++;
+                document.getElementById('activeDevices').textContent = activeCount;
+
+                const now = new Date();
+                document.getElementById('lastActivity').textContent = now.toLocaleTimeString();
+            })
+            .catch(error => {
+                console.error('Error fetching system info:', error);
+                document.getElementById('connectionStatus').innerHTML =
+                    '<span class="status-dot offline"></span> Offline';
+            });
+    }
+
+    function updateDeviceStates() {
+        fetch('/api/live-data')
+            .then(response => response.json())
+            .then(data => {
+                if (data.light_state !== null) {
+                    updateDeviceUI('light', data.light_state);
+                }
+                if (data.fan_state !== null) {
+                    updateDeviceUI('fan', data.fan_state);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching device states:', error);
+            });
+    }
+
+    // Initial load
+    updateSystemInfo();
+    updateDeviceStates();
+
+    // Update every 5 seconds
+    setInterval(() => {
+        updateSystemInfo();
+        updateDeviceStates();
+    }, 5000);
+</script>
+{% endblock %}
